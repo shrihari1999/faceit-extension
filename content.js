@@ -410,7 +410,7 @@ window.onload = () => {
                         historyHtml += link
                     });
                     historyContainer.children[0].children[1].textContent = counter[playerId].won + counter[playerId].lost
-                    historyContainer.children[1].children[1].textContent = Math.round(counter[playerId].won * 100 / (counter[playerId].won + counter[playerId].lost))
+                    historyContainer.children[1].children[1].textContent = String(Math.round(counter[playerId].won * 100 / (counter[playerId].won + counter[playerId].lost))) + '%'
                     let historyListContainer = historyContainer.children[2]
                     historyListContainer.children[0].textContent = 'Matchrooms'
                     historyListContainer.children[1].style.display = 'flex'
