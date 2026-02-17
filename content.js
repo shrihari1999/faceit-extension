@@ -272,6 +272,9 @@ window.onload = () => {
                                                             eloContainer.style.flexDirection = 'row'
                                                             eloContainer.style.justifyContent = 'space-evenly'
                                                             eloNumber.appendChild(eloContainer)
+
+                                                            let middleContainer = node.querySelector('div[class*="ListContentPlayer__MiddleSlotWrapper"]')
+                                                            middleContainer.style.flexDirection = 'column'
                                                             break
                                                         }
                                                         node = node.parentNode;
