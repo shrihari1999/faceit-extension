@@ -1,158 +1,40 @@
-# FACEIT Match Alert
+# FACEIT Add-on
 
-A Chrome/Chromium browser extension that enhances your FACEIT gaming experience with intelligent match notifications, automatic match acceptance, and comprehensive opponent analysis for Counter-Strike 2.
+A Chrome/Chromium browser extension that enhances your FACEIT gaming experience with match notifications, automatic match acceptance, and opponent analysis for Counter-Strike 2.
 
 ## Features
 
-### Match Management
-- **Custom Audio Alert Notifications**: Upload your own MP3 (up to 7 seconds) via the extension popup to play when a match is found
+- **Custom Audio Alert**: Upload your own MP3 (up to 7 seconds) to play when a match is found
 - **Auto-Accept Matches**: Automatically accepts match invitations so you never miss a game
+- **Match History vs Opponents**: See your win/loss record against each opponent in the current match, with links to previous match rooms
+- **Max Skill Level**: Displays the highest FACEIT level each opponent has ever reached
+- **Suspicious Steam Comments**: Scans opponent Steam profiles for comments containing keywords like "-rep", "wall", "hack", "cheat"
 
-### Opponent Intelligence
-- **Match History vs Opponents**: See how many times you've played against each opponent in your current match, including:
-  - Total matches played against each player
-  - Win/Loss record against specific opponents
-  - Win percentage calculations
-  - Direct links to previous match rooms
-
-- **Player Analysis Tools**:
-  - **Max Skill Level**: Displays the highest FACEIT level each opponent has achieved
-  - **Steam Profile Analysis**: Automatically scans opponent Steam profiles for suspicious comments
-    - Detects keywords like "-rep", "wall", "hack", "cheat"
-    - Flags potentially problematic players before the match starts
-
-### Enhanced Player Information
-When you click on a player in the match room, the extension displays:
-- Complete match history against that specific player
-- Win/Loss indicators for each match
-- Win percentage statistics
-- Clickable links to review past matches
+All features can be individually toggled on or off from the extension popup.
 
 ## Installation
 
-1. Download or clone this repository
-2. Open Chrome/Chromium and navigate to `chrome://extensions/`
-3. Enable "Developer mode" in the top right corner
-4. Click "Load unpacked" and select the extension directory
-5. The extension will now be active on FACEIT.com
+Install from the [Chrome Web Store](#).
 
 ## Configuration
 
-### Custom Alert Sound
-1. Click the extension icon in your browser toolbar
-2. Upload an MP3 file (max 7 seconds) using the file picker
-3. Use "Preview Alert" to test it before a match
-4. "Remove Custom Audio" reverts to no alert (FACEIT's native sound will play)
+Click the extension icon in your browser toolbar to open settings. From there you can:
 
-### FACEIT API Key
-The extension requires a FACEIT Open API key to function properly:
-
-1. Get your API key from [FACEIT Developer Portal](https://developers.faceit.com/)
-2. Open [content.js](content.js) and locate line 1
-3. Replace the placeholder with your API key:
-   ```javascript
-   const faceitApiKey = 'YOUR_API_KEY_HERE';
-   ```
-
-## How It Works
-
-### Architecture
-The extension consists of three main components:
-
-1. **Content Script** ([content.js](content.js)): Runs on FACEIT pages and handles:
-   - DOM manipulation and data injection
-   - Match detection and auto-acceptance
-   - Player data fetching and analysis
-   - UI enhancements
-
-2. **Background Service Worker** ([background.js](background.js)): Manages:
-   - Audio playback via offscreen documents
-   - Steam profile comment fetching (CORS handling)
-   - Message passing between components
-
-3. **Audio System** ([audio.js](audio.js), [audio.html](audio.html)):
-   - Plays user-uploaded alert sounds when matches are found
-   - Uses Chrome's Offscreen Document API (Manifest V3 compliant)
-
-4. **Settings Popup** ([popup.js](popup.js), [popup.html](popup.html)):
-   - Upload, preview, and remove custom alert MP3s
-   - Audio stored locally via `chrome.storage.local`
-
-### Data Flow
-```
-FACEIT Match Room
-    ↓
-Detect Players → Fetch User Session → Get Match History (up to 1000 matches)
-    ↓
-For Each Opponent:
-    ├─ Calculate head-to-head statistics
-    ├─ Fetch max skill level
-    └─ Scan Steam profile comments
-    ↓
-Inject Data into UI
-```
-
-## API Dependencies
-
-The extension integrates with several services:
-
-- **FACEIT APIs**: Player stats, match history, session data
-- **Steam Community**: Profile comments for suspicious player detection
-
-## Technical Details
-
-- **Manifest Version**: 3 (latest Chrome extension standard)
-- **Permissions**:
-  - `tabs`: For extension functionality and tab muting
-  - `offscreen`: For audio playback
-  - `storage`: For persisting custom alert audio
-  - Host permissions for Steam Community access
-- **Supported Sites**: `https://www.faceit.com/*`
-- **Performance**: Fetches up to 1000 matches per analysis to balance data completeness with API performance
-
-## Project Structure
-
-```
-faceit-match-alert/
-├── manifest.json      # Extension configuration
-├── content.js         # Main content script (core logic)
-├── background.js      # Service worker
-├── audio.js          # Audio handler
-├── audio.html        # Offscreen audio document
-├── popup.js          # Settings popup logic
-├── popup.html        # Settings popup UI
-└── README.md         # Documentation
-```
+- Toggle each feature on or off
+- Upload a custom MP3 alert sound (max 7 seconds), preview it, or remove it
 
 ## Privacy & Data Usage
 
 - All data processing happens locally in your browser
-- API calls are made directly to FACEIT, Steam, and CSWatch services
-- No personal data is collected or transmitted to third parties
-- Match history is fetched only when viewing a match room
+- API calls are made directly to FACEIT and Steam — no data passes through any third-party server
+- No personal data is collected or stored beyond your own extension settings
 
 ## Limitations
 
-- Requires a valid FACEIT Open API key
-- Steam profile analysis depends on profile privacy settings
-- Match history limited to most recent 1000 matches for performance
-- Only works on FACEIT website (www.faceit.com)
-
-## Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs or issues
-- Suggest new features
-- Submit pull requests
-
-## License
-
-This project is provided as-is for personal use.
+- Steam profile analysis depends on the opponent's Steam profile privacy settings
+- Match history is based on your most recent 1000 matches
+- Only works on the FACEIT website (www.faceit.com)
 
 ## Disclaimer
 
 This extension is not officially affiliated with FACEIT. Use at your own discretion and in accordance with FACEIT's terms of service.
-
----
-
-**Note**: Make sure to keep your FACEIT API key private and never commit it to public repositories.

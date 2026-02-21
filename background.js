@@ -72,20 +72,21 @@ chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if(request.type == 'alert'){
             if(request.data == 'play'){
-                chrome.storage.local.get('customAudioDataUrl', (result) => {
-                    if (result.customAudioDataUrl) {
+                chrome.storage.local.get(['customAudioDataUrl', 'audioEnabled'], (result) => {
+                    const audioEnabled = result.audioEnabled !== undefined ? result.audioEnabled : true;
+                    if (audioEnabled && result.customAudioDataUrl) {
                         chrome.tabs.update(sender.tab.id, { muted: true });
                         playAlert(result.customAudioDataUrl);
                     }
                 });
             }
             else if(request.data == 'mute'){
-                chrome.storage.local.get('customAudioDataUrl', (result) => {
-                    if (result.customAudioDataUrl) {
+                chrome.storage.local.get(['customAudioDataUrl', 'audioEnabled'], (result) => {
+                    const audioEnabled = result.audioEnabled !== undefined ? result.audioEnabled : true;
+                    if (audioEnabled && result.customAudioDataUrl) {
                         let tabId = sender.tab.id
-                        chrome.tabs.get(tabId, async (tab) => {
-                            let muted = true
-                            chrome.tabs.update(tabId, { muted });
+                        chrome.tabs.get(tabId, async () => {
+                            chrome.tabs.update(tabId, { muted: true });
                         });
                     }
                 });

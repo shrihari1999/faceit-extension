@@ -3,21 +3,72 @@ const statusDiv = document.getElementById('status');
 const currentAudioDiv = document.getElementById('currentAudio');
 const previewBtn = document.getElementById('previewBtn');
 const resetBtn = document.getElementById('resetBtn');
+const audioSection = document.getElementById('audioSection');
+const audioEnabledToggle = document.getElementById('audioEnabled');
+const autoAcceptToggle = document.getElementById('autoAccept');
+const showHistoryToggle = document.getElementById('showHistory');
+const showMaxLevelToggle = document.getElementById('showMaxLevel');
+const showSuspiciousCommentsToggle = document.getElementById('showSuspiciousComments');
 
 const MAX_DURATION_SECONDS = 7;
 
-chrome.storage.local.get('customAudioDataUrl', (result) => {
-  if (result.customAudioDataUrl) {
-    currentAudioDiv.textContent = 'Current: Custom audio';
-    previewBtn.style.display = 'inline-block';
-    resetBtn.style.display = 'inline-block';
-  } else {
-    currentAudioDiv.textContent = 'Current: No custom audio';
-    previewBtn.style.display = 'none';
-    resetBtn.style.display = 'none';
+const DEFAULTS = {
+  audioEnabled: true,
+  autoAccept: true,
+  showHistory: true,
+  showMaxLevel: true,
+  showSuspiciousComments: true,
+};
+
+function setAudioActive(active) {
+  currentAudioDiv.textContent = active ? 'Custom audio' : 'No custom audio';
+  previewBtn.style.display = active ? 'inline-block' : 'none';
+  resetBtn.style.display = active ? 'inline-block' : 'none';
+}
+
+function setStatus(message, type) {
+  statusDiv.textContent = message;
+  statusDiv.className = type;
+}
+
+// Load all settings on open
+chrome.storage.local.get(
+  ['customAudioDataUrl', 'audioEnabled', 'autoAccept', 'showHistory', 'showMaxLevel', 'showSuspiciousComments'],
+  (result) => {
+    const audioEnabled = result.audioEnabled !== undefined ? result.audioEnabled : DEFAULTS.audioEnabled;
+    audioEnabledToggle.checked = audioEnabled;
+    audioSection.style.display = audioEnabled ? 'flex' : 'none';
+    setAudioActive(Boolean(result.customAudioDataUrl));
+
+    autoAcceptToggle.checked = result.autoAccept !== undefined ? result.autoAccept : DEFAULTS.autoAccept;
+    showHistoryToggle.checked = result.showHistory !== undefined ? result.showHistory : DEFAULTS.showHistory;
+    showMaxLevelToggle.checked = result.showMaxLevel !== undefined ? result.showMaxLevel : DEFAULTS.showMaxLevel;
+    showSuspiciousCommentsToggle.checked = result.showSuspiciousComments !== undefined ? result.showSuspiciousComments : DEFAULTS.showSuspiciousComments;
   }
+);
+
+// Audio enabled toggle
+audioEnabledToggle.addEventListener('change', () => {
+  const enabled = audioEnabledToggle.checked;
+  audioSection.style.display = enabled ? 'flex' : 'none';
+  chrome.storage.local.set({ audioEnabled: enabled });
 });
 
+// Simple boolean toggles
+autoAcceptToggle.addEventListener('change', () => {
+  chrome.storage.local.set({ autoAccept: autoAcceptToggle.checked });
+});
+showHistoryToggle.addEventListener('change', () => {
+  chrome.storage.local.set({ showHistory: showHistoryToggle.checked });
+});
+showMaxLevelToggle.addEventListener('change', () => {
+  chrome.storage.local.set({ showMaxLevel: showMaxLevelToggle.checked });
+});
+showSuspiciousCommentsToggle.addEventListener('change', () => {
+  chrome.storage.local.set({ showSuspiciousComments: showSuspiciousCommentsToggle.checked });
+});
+
+// Audio file upload
 audioFileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -31,7 +82,6 @@ audioFileInput.addEventListener('change', (e) => {
   const reader = new FileReader();
   reader.onload = (event) => {
     const dataUrl = event.target.result;
-
     const audio = new Audio();
     audio.src = dataUrl;
 
@@ -49,10 +99,8 @@ audioFileInput.addEventListener('change', (e) => {
         if (chrome.runtime.lastError) {
           setStatus('Failed to save: ' + chrome.runtime.lastError.message, 'error');
         } else {
-          setStatus('Custom audio saved successfully!', 'success');
-          currentAudioDiv.textContent = 'Current: Custom audio';
-          previewBtn.style.display = 'inline-block';
-          resetBtn.style.display = 'inline-block';
+          setStatus('Saved!', 'success');
+          setAudioActive(true);
         }
       });
     });
@@ -70,27 +118,23 @@ audioFileInput.addEventListener('change', (e) => {
   reader.readAsDataURL(file);
 });
 
+// Preview
+let previewAudio = null;
 previewBtn.addEventListener('click', () => {
   chrome.storage.local.get('customAudioDataUrl', (result) => {
     if (result.customAudioDataUrl) {
-      const audio = new Audio();
-      audio.src = result.customAudioDataUrl;
-      audio.play();
+      if (previewAudio) { previewAudio.pause(); previewAudio.currentTime = 0; }
+      previewAudio = new Audio(result.customAudioDataUrl);
+      previewAudio.play();
     }
   });
 });
 
+// Remove custom audio
 resetBtn.addEventListener('click', () => {
   chrome.storage.local.remove('customAudioDataUrl', () => {
-    setStatus('Custom audio removed.', 'success');
-    currentAudioDiv.textContent = 'Current: No custom audio';
-    previewBtn.style.display = 'none';
-    resetBtn.style.display = 'none';
+    setStatus('Audio removed.', 'success');
+    setAudioActive(false);
     audioFileInput.value = '';
   });
 });
-
-function setStatus(message, type) {
-  statusDiv.textContent = message;
-  statusDiv.className = 'status ' + type;
-}

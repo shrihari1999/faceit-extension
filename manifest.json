@@ -1,7 +1,7 @@
 {
-    "name": "Faceit Match Alert",
+    "name": "FACEIT Add-on",
     "manifest_version": 3,
-    "version": "0.2",
+    "version": "1.0",
     "content_scripts": [
         {
             "matches": ["https://www.faceit.com/*"],
@@ -17,9 +17,19 @@
     "host_permissions": [
         "https://steamcommunity.com/"
     ],
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
     "action": {
         "default_popup": "popup.html",
-        "default_title": "Faceit Match Alert Settings"
+        "default_title": "FACEIT Add-on Settings",
+        "default_icon": {
+            "16": "icon16.png",
+            "48": "icon48.png",
+            "128": "icon128.png"
+        }
     },
     "background": {
         "service_worker": "background.js"
