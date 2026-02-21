@@ -35,9 +35,13 @@ window.onload = () => {
         let matchCame = false
         if(document.querySelector('div[role="dialog"]')){
             let buttons = document.querySelectorAll('div[role="dialog"] button')
+            let declineButtonFound = false
             for (let i = 0; i < buttons.length; i++) {
                 const node = buttons[i];
-                if(node.innerText.toLowerCase() == 'accept'){
+                if(node.innerText.toLowerCase() == 'decline'){
+                    declineButtonFound = true
+                }
+                if(node.innerText.toLowerCase() == 'accept' && !declineButtonFound){
                     matchCame = true
                     setTimeout(() => {
                         node.click()
@@ -60,8 +64,6 @@ window.onload = () => {
     })
     mutationObserver.observe(document.body, {attributes: true, subtree: true, childList: true, characterData: true})
 
-    let reportShield = false
-    let ipShield = false
     let countShield = false
     let historyShield = false
     
@@ -69,92 +71,6 @@ window.onload = () => {
     let counterReady = false
     let steamIdMapping = {}
     var mutationObserverForReport = new MutationObserver(function (){
-        if(Boolean(document.querySelector('div[name="info"]') && Boolean(document.querySelector('div[name="info"]').querySelector('button')))){
-            // report all opponents in room
-            // if(!reportShield){
-            //     reportShield = true
-            //     setTimeout(() => {
-            //         let infoContainer = document.querySelector('div[name="info"]')
-            //         let newButton = infoContainer.querySelectorAll('button')[infoContainer.querySelectorAll('button').length - 1].cloneNode(true)
-            //         newButton.removeAttribute('href')
-            //         newButton.style.marginTop = '10px';
-            //         (newButton.querySelector('span') || newButton).innerText = 'Report all opponents'
-            //         newButton.addEventListener('click', function(){
-            //             fetch("https://www.faceit.com/api/users/v1/sessions/me", {
-            //                 "headers": getHeaders(),
-            //                 "mode": "cors",
-            //                 "credentials": "include"
-            //             })
-            //             .then(r => r.json())
-            //             .then(r => {
-            //                 let userId = r['payload']['id']
-            //                 let matchId = location.href.split('room/')[1]
-            //                 fetch(`https://api.faceit.com/match/v2/match/${matchId}`)
-            //                 .then(r => r.json())
-            //                 .then(r => {
-            //                     const { faction1, faction2 } = r['payload']['teams']
-            //                     let opponentFaction = (
-            //                         faction1['roster'].find(player => {
-            //                             return player['id'] == userId
-            //                         }) === undefined
-            //                     ) ? faction1 : faction2
-            //                     opponentFaction['roster'].forEach(player => {
-            //                         fetch(`https://api.faceit.com/fbi/v1/matches/${matchId}/report`, {
-            //                             headers: {
-            //                                 "accept": "application/json, text/plain, */*",
-            //                                 "accept-language": "en-US,en;q=0.9",
-            //                                 "content-type": "application/json",
-            //                             },
-            //                             referrer: "https://api.faceit.com/proxy.html",
-            //                             referrerPolicy: "strict-origin-when-cross-origin",
-            //                             body: JSON.stringify({
-            //                                 "matchId": matchId,
-            //                                 "reportedUserId": player['id'],
-            //                                 "category": "cheat",
-            //                                 "subCategory": "cheating",
-            //                                 "comment": ""
-            //                             }),
-            //                             method: "POST",
-            //                             mode: "cors",
-            //                         });
-            //                     });
-            //                     alert('All opponents reported!')
-            //                 })
-            //             })
-            //         })
-            //         infoContainer.append(newButton)
-            //     }, 1000);
-            // }
-            // // auto download current match ip
-            // if(!ipShield){
-            //     ipShield = true
-            //     setTimeout(() => {
-            //         let infoContainer = document.querySelector('div[name="info"]')
-            //         let buttons = infoContainer.querySelectorAll('a[href^="steam"]')
-            //         for (let i = 0; i < buttons.length; i++) {
-            //             if(buttons[i].innerText == 'CONNECT'){
-            //                 let text = decodeURIComponent(buttons[i].href).split('+')[1]
-            //                 const link = document.createElement("a")
-            //                 const file = new Blob([text], { type: 'text/plain' })
-            //                 link.href = URL.createObjectURL(file)
-            //                 link.download = "faceit-ip.txt"
-            //                 link.click()
-            //                 URL.revokeObjectURL(link.href)
-            //                 navigator.clipboard.writeText(text)
-            //                 break
-            //             }
-            //         }
-            //     }, 1000);
-            // }
-        }
-        else{
-            if(reportShield){
-                reportShield = false
-            }
-            if(ipShield){
-                ipShield = false
-            }
-        }
         if(Boolean(document.querySelector('div[name="roster1"]'))){
             // show how many times we have played with each opponent
             if(!countShield){
