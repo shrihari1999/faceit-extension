@@ -267,11 +267,17 @@ window.onload = () => {
                                                     while (node && node !== document) {
                                                         if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'DIV' && [...node.classList].some(cls => cls.startsWith('ListContentPlayer__Body'))) {
                                                             let eloNumber = node.querySelector('div[class^="TextBlock__Holder"]')
-                                                            let eloContainer = eloNumber.cloneNode()
+                                                            let eloContainer = eloNumber ? eloNumber.cloneNode() : document.createElement('div')
                                                             eloContainer.setAttribute('id', `max-level-${player['id']}`)
                                                             eloContainer.style.flexDirection = 'row'
                                                             eloContainer.style.justifyContent = 'space-evenly'
-                                                            eloNumber.appendChild(eloContainer)
+                                                            if(eloNumber){
+                                                                eloNumber.appendChild(eloContainer)
+                                                            }
+                                                            else{
+                                                                let levelSvg = node.querySelector('div[class^="styles__EndSlotContainer"] svg')
+                                                                levelSvg.before(eloContainer)
+                                                            }
 
                                                             let middleContainer = node.querySelector('div[class*="ListContentPlayer__MiddleSlotWrapper"]')
                                                             middleContainer.style.flexDirection = 'column'

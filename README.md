@@ -5,7 +5,7 @@ A Chrome/Chromium browser extension that enhances your FACEIT gaming experience 
 ## Features
 
 ### Match Management
-- **Audio Alert Notifications**: Get instant audio alerts when a match is found
+- **Custom Audio Alert Notifications**: Upload your own MP3 (up to 7 seconds) via the extension popup to play when a match is found
 - **Auto-Accept Matches**: Automatically accepts match invitations so you never miss a game
 
 ### Opponent Intelligence
@@ -38,13 +38,20 @@ When you click on a player in the match room, the extension displays:
 
 ## Configuration
 
+### Custom Alert Sound
+1. Click the extension icon in your browser toolbar
+2. Upload an MP3 file (max 7 seconds) using the file picker
+3. Use "Preview Alert" to test it before a match
+4. "Remove Custom Audio" reverts to no alert (FACEIT's native sound will play)
+
+### FACEIT API Key
 The extension requires a FACEIT Open API key to function properly:
 
 1. Get your API key from [FACEIT Developer Portal](https://developers.faceit.com/)
-2. Open [content.js](content.js) and locate line 3
+2. Open [content.js](content.js) and locate line 1
 3. Replace the placeholder with your API key:
    ```javascript
-   const apiKey = 'YOUR_API_KEY_HERE';
+   const faceitApiKey = 'YOUR_API_KEY_HERE';
    ```
 
 ## How It Works
@@ -64,8 +71,12 @@ The extension consists of three main components:
    - Message passing between components
 
 3. **Audio System** ([audio.js](audio.js), [audio.html](audio.html)):
-   - Plays alert sounds when matches are found
+   - Plays user-uploaded alert sounds when matches are found
    - Uses Chrome's Offscreen Document API (Manifest V3 compliant)
+
+4. **Settings Popup** ([popup.js](popup.js), [popup.html](popup.html)):
+   - Upload, preview, and remove custom alert MP3s
+   - Audio stored locally via `chrome.storage.local`
 
 ### Data Flow
 ```
@@ -92,8 +103,9 @@ The extension integrates with several services:
 
 - **Manifest Version**: 3 (latest Chrome extension standard)
 - **Permissions**:
-  - `tabs`: For extension functionality
+  - `tabs`: For extension functionality and tab muting
   - `offscreen`: For audio playback
+  - `storage`: For persisting custom alert audio
   - Host permissions for Steam Community access
 - **Supported Sites**: `https://www.faceit.com/*`
 - **Performance**: Fetches up to 1000 matches per analysis to balance data completeness with API performance
@@ -107,7 +119,8 @@ faceit-match-alert/
 ├── background.js      # Service worker
 ├── audio.js          # Audio handler
 ├── audio.html        # Offscreen audio document
-├── alert.mp3         # Alert sound file
+├── popup.js          # Settings popup logic
+├── popup.html        # Settings popup UI
 └── README.md         # Documentation
 ```
 
