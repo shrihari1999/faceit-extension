@@ -20,10 +20,11 @@ const DEFAULTS = {
   showSuspiciousComments: true,
 };
 
-function setAudioActive(active) {
-  currentAudioDiv.textContent = active ? 'Custom audio' : 'No custom audio';
+function setAudioActive(active, fileName) {
+  currentAudioDiv.textContent = active ? fileName || 'Custom audio' : 'No custom audio';
   previewBtn.style.display = active ? 'inline-block' : 'none';
   resetBtn.style.display = active ? 'inline-block' : 'none';
+  document.querySelector('.upload-zone').style.display = active ? 'none' : '';
 }
 
 function setStatus(message, type) {
@@ -33,12 +34,12 @@ function setStatus(message, type) {
 
 // Load all settings on open
 chrome.storage.local.get(
-  ['customAudioDataUrl', 'audioEnabled', 'autoAccept', 'showHistory', 'showMaxLevel', 'showSuspiciousComments'],
+  ['customAudioDataUrl', 'customAudioFileName', 'audioEnabled', 'autoAccept', 'showHistory', 'showMaxLevel', 'showSuspiciousComments'],
   (result) => {
     const audioEnabled = result.audioEnabled !== undefined ? result.audioEnabled : DEFAULTS.audioEnabled;
     audioEnabledToggle.checked = audioEnabled;
     audioSection.style.display = audioEnabled ? 'flex' : 'none';
-    setAudioActive(Boolean(result.customAudioDataUrl));
+    setAudioActive(Boolean(result.customAudioDataUrl), result.customAudioFileName);
 
     autoAcceptToggle.checked = result.autoAccept !== undefined ? result.autoAccept : DEFAULTS.autoAccept;
     showHistoryToggle.checked = result.showHistory !== undefined ? result.showHistory : DEFAULTS.showHistory;
@@ -95,12 +96,12 @@ audioFileInput.addEventListener('change', (e) => {
         return;
       }
 
-      chrome.storage.local.set({ customAudioDataUrl: dataUrl }, () => {
+      chrome.storage.local.set({ customAudioDataUrl: dataUrl, customAudioFileName: file.name }, () => {
         if (chrome.runtime.lastError) {
           setStatus('Failed to save: ' + chrome.runtime.lastError.message, 'error');
         } else {
           setStatus('Saved!', 'success');
-          setAudioActive(true);
+          setAudioActive(true, file.name);
         }
       });
     });
@@ -132,7 +133,7 @@ previewBtn.addEventListener('click', () => {
 
 // Remove custom audio
 resetBtn.addEventListener('click', () => {
-  chrome.storage.local.remove('customAudioDataUrl', () => {
+  chrome.storage.local.remove(['customAudioDataUrl', 'customAudioFileName'], () => {
     setStatus('Audio removed.', 'success');
     setAudioActive(false);
     audioFileInput.value = '';
