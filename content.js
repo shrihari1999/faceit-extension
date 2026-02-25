@@ -82,6 +82,7 @@ window.onload = () => {
             let counter = {}
             let counterReady = false
             let steamIdMapping = {}
+            let nicknameToId = {}
             var mutationObserverForReport = new MutationObserver(function (){
                 if(Boolean(document.querySelector('div[name="roster1"]'))){
                     // show how many times we have played with each opponent
@@ -181,6 +182,7 @@ window.onload = () => {
                                             opponentFactions.forEach(opponentFactionObject => {
                                                 opponentFactionObject.opponentFaction['roster'].forEach(player => {
                                                     let playerName = player['nickname']
+                                                    nicknameToId[playerName] = player['id']
                                                     let playerHistory = counter[player['id']] || { matches: [], won: 0, lost: 0 }
                                                     // update player history
                                                     let rosterContainer = document.querySelector(`div[name="${opponentFactionObject.rosterContainerName}"]`)
@@ -364,9 +366,7 @@ window.onload = () => {
                                 let historyContainer = statsContainer.cloneNode(true)
                                 historyContainer.setAttribute('id', 'history-container')
                                 let playerName = playerNameContainer.textContent
-                                let playerId = Object.keys(counter).find(userId => {
-                                    return counter[userId].name == playerName
-                                });
+                                let playerId = nicknameToId[playerName];
                                 if(!counter[playerId]){
                                     historyShield = false
                                     return

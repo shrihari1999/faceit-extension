@@ -1,7 +1,7 @@
 {
     "name": "FACEIT Add-on",
     "manifest_version": 3,
-    "version": "1.0",
+    "version": "1.1",
     "content_scripts": [
         {
             "matches": ["https://www.faceit.com/*"],
